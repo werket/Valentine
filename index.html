@@ -131,14 +131,32 @@
             font-weight: 600;
             border: none;
             border-radius: 50px;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #666, #555);
+            color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s ease;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .btn-yes.unlocked {
             cursor: pointer;
             background: linear-gradient(135deg, #ff6b9d, #ff3366);
             color: white;
             box-shadow: 0 8px 30px rgba(255, 51, 102, 0.4);
-            transition: all 0.3s ease;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
+            opacity: 1;
+            pointer-events: auto;
+            animation: unlockPulse 0.6s ease;
+        }
+
+        @keyframes unlockPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
         }
 
         .btn-yes::before {
@@ -158,7 +176,7 @@
             100% { transform: translateX(100%) rotate(45deg); }
         }
 
-        .btn-yes:hover {
+        .btn-yes.unlocked:hover {
             transform: scale(1.15);
             box-shadow: 0 12px 40px rgba(255, 51, 102, 0.6);
         }
@@ -450,6 +468,18 @@
                 noBtn.style.animation = 'spin 0.5s linear';
                 setTimeout(() => noBtn.style.animation = '', 500);
             }
+
+            // At 20 attempts, No button disappears and Yes unlocks
+            if (escapeCount >= 20) {
+                noBtn.style.transition = 'all 0.5s ease';
+                noBtn.style.opacity = '0';
+                noBtn.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    noBtn.style.display = 'none';
+                    yesBtn.classList.add('unlocked');
+                    counterEl.textContent = "The No button gave up! Now you have no choice... 💕";
+                }, 500);
+            }
         }
 
         // Desktop: evade on hover
@@ -485,6 +515,7 @@
 
         // ========== YES button ==========
         function sayYes() {
+            if (!yesBtn.classList.contains('unlocked')) return;
             document.getElementById('question-page').style.display = 'none';
             document.getElementById('success-page').classList.add('active');
             document.getElementById('escapeCounter').style.display = 'none';
